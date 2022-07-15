@@ -99,7 +99,7 @@ open class Dialog(context: Context) : Dialog(context) {
         }
     }
 
-    fun setUiForField(field: Field) {
+    private fun setUiForField(field: Field) {
         if (!field.isAnnotationPresent(Skip::class.java)) {
             field.isAccessible = true
             TextInputLayout(context).let {
