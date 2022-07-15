@@ -6,6 +6,6 @@ import java.lang.annotation.RetentionPolicy
 
 @Dialog.PrettyName("Info Data Class")
 data class InfoDataClass(
-    @get:Dialog.Skip var id: Int,
-    @Dialog.Skip var name: String
+    @Dialog.Skip var id: Int,
+    var name: String
     )
