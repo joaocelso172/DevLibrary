@@ -17,18 +17,6 @@ class DialogExample(context: Context) : Dialog(context) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val tv_dynamic = TextView(context)
-        tv_dynamic.textSize = 38f
-        tv_dynamic.text = "This is a dynamic TextView generated programmatically"
-        /**TODO Create elements using Kotlin + create template package to reuse in diverses views*/
-        val infoDataClass = InfoDataClass(1, "teste")
-        val infoDataClass2 = InfoDataClass(2, "Jão")
-        this.createViewModel(InfoDataClass::class.java)
-
-        Log.d("DialogExample", "onCreate: ${this.setObject(infoDataClass)}")
-
-
     }
 
 }
