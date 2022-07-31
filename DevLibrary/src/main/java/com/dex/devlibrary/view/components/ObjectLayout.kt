@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.contains
+import androidx.core.view.forEach
 import androidx.core.view.setPadding
 import com.dex.devlibrary.R
 import com.dex.devlibrary.annotation.view.AnnotationLibrary
@@ -23,6 +24,7 @@ import java.lang.reflect.Field
 class ObjectLayout(context: Context?) : ViewGroup(context!!) {
     constructor(context: Context, mObjectClass: Any) : this(context) {
         this.mObjectClass = mObjectClass
+        setObjectLayout(mObjectClass)
     }
 
     companion object {
@@ -37,8 +39,24 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
 
     override fun onAttachedToWindow() {
         Log.d(TAG, "onAttachedToWindow: ")
-        setObjectLayout(mObjectClass)
+        setRootLayout()
         super.onAttachedToWindow()
+    }
+
+    fun getLayoutField(field: Field) : View? {
+        mBaseLinearLayout.forEach {
+            if (field.javaClass.hashCode() == it.id)
+                return it
+        }
+        return null
+    }
+
+    fun getLayoutField(fieldHash: Int) : View? {
+        mBaseLinearLayout.forEach {
+            if (fieldHash == it.id)
+                return it
+        }
+        return null
     }
 
     /**Return if field content is drawable, image or resourceId*/
@@ -53,19 +71,21 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
         }
         return AnnotationLibrary.DEFAULT
     }
-
-    /**Set ObjectLayout base layer*/
-    private fun setBaseLayout() {
+    /**Add ObjectLayout base layer to root layout*/
+    private fun setRootLayout(){
         this.rootView.background = context.getDrawable(R.drawable.shape_curved)
-        this.layoutParams = FrameLayout.LayoutParams(0, 0)
-        Utils.setAllMargins((this.parent as FrameLayout)!!, 35)
         (this.parent as FrameLayout)?.layoutParams =
             FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT)
+        this.layoutParams = FrameLayout.LayoutParams(0, 0)
+        Utils.setAllMargins((this.parent as FrameLayout)!!, 35)
+        (this.parent as FrameLayout)?.addView(mBaseLinearLayout)
+    }
+    /**Set ObjectLayout base layer before view be attached to window*/
+    private fun setBaseLayout() {
         mBaseLinearLayout = LinearLayout(context).also {
             it.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
             it.orientation = LinearLayout.VERTICAL
             it.setPadding(20)
-            (this.parent as FrameLayout)?.addView(it)
             TextView(context).let { title ->
                 title.textSize
                 title.textSize = 22f
@@ -94,7 +114,7 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
         if ((field).isAnnotationPresent(AnnotationLibrary.Companion.Skip::class.java)) {
             return
         }
-        val v: View
+        var v: View
         when (getViewType(field)) {
             AnnotationLibrary.DRAWABLE, AnnotationLibrary.URL, AnnotationLibrary.RESOURCE_ID -> {
                 ImageView(context).apply {
@@ -133,7 +153,14 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
                 }
             }
         }
+        v.id = field.javaClass.hashCode()
+        Log.d(TAG, "setObjectField: view id = ${v.id}")
         if (!mBaseLinearLayout.contains(v)) mBaseLinearLayout.addView(v)
+    }
+
+    private fun getViewId(v: View) : String{
+        return if (v.id == View.NO_ID) "no-id";
+        else v.resources.getResourceName(v.id);
     }
 
     /**Set image for field*/
