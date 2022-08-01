@@ -20,6 +20,7 @@ import com.dex.devlibrary.view.Utils
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.lang.reflect.Field
+import kotlin.reflect.KMutableProperty0
 
 class ObjectLayout(context: Context?) : ViewGroup(context!!) {
     constructor(context: Context, mObjectClass: Any) : this(context) {
@@ -43,17 +44,9 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
         super.onAttachedToWindow()
     }
 
-    fun getLayoutField(field: Field) : View? {
+    fun getLayoutField(field: KMutableProperty0<*>) : View? {
         mBaseLinearLayout.forEach {
-            if (field.javaClass.hashCode() == it.id)
-                return it
-        }
-        return null
-    }
-
-    fun getLayoutField(fieldHash: Int) : View? {
-        mBaseLinearLayout.forEach {
-            if (fieldHash == it.id)
+            if (mObjectClass::class.java.getDeclaredField(field.name).hashCode() == it.id)
                 return it
         }
         return null
@@ -90,9 +83,9 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
                 title.textSize
                 title.textSize = 22f
                 title.gravity = TextView.TEXT_ALIGNMENT_GRAVITY
-                if (mObjectClass.javaClass.getAnnotation(AnnotationLibrary.Companion.PrettyName::class.java) != null) {
+                if (mObjectClass::class.java.getAnnotation(AnnotationLibrary.Companion.PrettyName::class.java) != null) {
                     title.text =
-                        mObjectClass.javaClass.getAnnotation(AnnotationLibrary.Companion.PrettyName::class.java).n
+                        mObjectClass::class.java.getAnnotation(AnnotationLibrary.Companion.PrettyName::class.java).n
                 }
                 it.addView(title)
             }
@@ -102,10 +95,10 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
     /**Set layout using object*/
     private fun setObjectLayout(objects: Any) {
         setBaseLayout()
-        objects.javaClass.declaredFields.reversed().forEach {
+        Log.d(TAG, "setObjectLayout: ${objects}, ${objects::class.java}")
+        objects::class.java.declaredFields.reversed().forEach {
             it.isAccessible = true
             setObjectField(it, objects)
-            Log.d(TAG, "setObjectLayout: Field: ${it.name}, content: ${it.get(objects)}")
         }
     }
 
@@ -125,7 +118,6 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
                     setImageForField(field, content, this)
                     setPadding(20)
                     v = this
-                    Log.d(TAG, "setViewForField: View added as ImageView: ${getViewType(field)}")
                 }
             }
             else -> {
@@ -148,19 +140,13 @@ class ObjectLayout(context: Context?) : ViewGroup(context!!) {
                         LayoutParams.MATCH_PARENT,
                         LayoutParams.WRAP_CONTENT
                     )
-                    Log.d(TAG, "setViewForField: View added as TIL: ${field.get(content)}")
                     v = til
                 }
             }
         }
-        v.id = field.javaClass.hashCode()
-        Log.d(TAG, "setObjectField: view id = ${v.id}")
+        v.id = field.hashCode()
+        Log.d(TAG, "setObjectField: Field: ${field.name}, content: ${field.get(content)}, id: ${v.id}")
         if (!mBaseLinearLayout.contains(v)) mBaseLinearLayout.addView(v)
-    }
-
-    private fun getViewId(v: View) : String{
-        return if (v.id == View.NO_ID) "no-id";
-        else v.resources.getResourceName(v.id);
     }
 
     /**Set image for field*/

@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.view.View
 import android.view.Window
+import kotlin.reflect.KClass
 
 
 open class Dialog(context: Context) : Dialog(context) {

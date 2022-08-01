@@ -4,13 +4,12 @@ import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
 import com.dex.devlibrary.view.components.Dialog
 import com.dex.devlibrary.view.components.ObjectLayout
 import com.dex.devlibraryexample.model.InfoDataClass
+import com.google.android.material.textfield.TextInputLayout
 import java.lang.reflect.Field
 
 class MainActivity : AppCompatActivity() {
@@ -45,11 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun buildCustomLayoutDialog(info: InfoDataClass){
         val objectLayout = ObjectLayout(this, info)
-        info.javaClass.declaredFields.forEach {
-            Log.d(TAG, "buildCustomLayoutDialog: ${objectLayout.getLayoutField(info.name.hashCode())}  ${info.javaClass.getDeclaredField(it.name)}")
-
-        }
-        //Log.d(TAG, "buildCustomLayoutDialog: ${info.javaClass.getField(info.name.javaClass.name)}")
+        (objectLayout.getLayoutField(info::name) as TextInputLayout).editText?.textSize = 18f
         Dialog(this).apply {
             setContentView(objectLayout)
             show()
