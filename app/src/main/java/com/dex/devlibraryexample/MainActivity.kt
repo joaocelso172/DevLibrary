@@ -3,14 +3,19 @@ package com.dex.devlibraryexample
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
 import com.dex.devlibrary.view.components.Dialog
 import com.dex.devlibrary.view.components.ObjectLayout
 import com.dex.devlibraryexample.model.InfoDataClass
+import com.google.android.material.textfield.TextInputLayout
+import java.lang.reflect.Field
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val TAG = "MainActivity"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -39,9 +44,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun buildCustomLayoutDialog(info: InfoDataClass){
         val objectLayout = ObjectLayout(this, info)
+        (objectLayout.getLayoutField(info::name) as TextInputLayout).editText?.textSize = 18f
         Dialog(this).apply {
             setContentView(objectLayout)
             show()
         }
+
     }
 }
